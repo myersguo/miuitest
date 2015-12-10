@@ -1,0 +1,240 @@
+{% extends layout.html %}
+{% block body %}
+
+{% if  'isadmin'  in globals() and isadmin == '1' %} 
+
+<div>
+	<div class="form-group form-inline">
+		<select multiple class="multiselect   files" width="100%">
+			{% for f in testcases%}
+				 <option>{{f}}</option>
+			{%end%}
+			
+		</select>
+			<!-- <option value='-1'>testcase</option>-->
+		
+		</select>
+		<button style="submit" class="btn btn-default runtest">执行</button>
+	</div>
+	<div> 
+		<div class="info-default info alert alert-warning hide"></div>
+	</div>
+</div>
+
+ <script type="text/javascript" src="js//libs/ui.multiselect.js"></script>
+
+<script>	
+	$(function() {
+	   $(".multiselect").multiselect();
+  	});
+  
+	$('.runtest').on('click', function() {
+		var _this = $(this);
+		_this.attr('disabled',true);
+		$('.info-default').removeClass('hide').html('测试用例执行中,请等待结果...');
+		testfiles = [];
+		//testfile = $('.files').val();
+		testfile = [];
+		$('.selected.ui-sortable li.ui-state-default').each(function(index,item){ testfile.push($(item).attr('title'))})
+		
+		if(testfile == '-1') {
+			$('.info').removeClass('hide').html('请选择测试用例');
+			return;
+		}
+		if(typeof testfile == 'string')
+			testfiles.push(testfile);
+		else
+			testfiles = testfile;
+		$.ajax({
+				type: 'POST',
+				url: '/runtestcase',
+				data : {"testcases": testfiles, 'isfile': 1},
+				success: function(data){
+					$('.info-default').removeClass('hide').html(data);
+					_this.attr('disabled',false);	
+				}
+			});
+		
+	});
+</script>
+
+{% end %}
+
+
+
+{% if  'isadmin' not in globals() or isadmin != '1' %} 	
+
+<div class="container-fluid">
+
+<div class="row order">
+
+<div class="form-inline">
+     <div class="form-group">
+        <select class="form-control method">
+        <option>url</option><option>click</option>
+		<option>text</option>
+		<option>assert_numeq</option>
+		<option>assertText</option>
+		<option>mouseover</option>
+		<option>gettext</option>
+		<option>getonlytext</option>
+		<option>check_url</option>
+		<option>get_currenturl</option>
+		<option>check_exists</option>
+		<option>assertText</option>
+		<option>goto_section</option>
+        </select>
+		
+        <input type="text" name="key"  class="form-control key" placeholder="key">
+        <input type="text" name="value"  class="form-control value" placeholder="value">
+        <button style="submit" class="btn btn-default addnewtest">添加</button>
+		<button style="submit" class="btn btn-default runtest">执行</button>
+
+		<button style="submit" class="btn btn-default runtestex">执行例子</button>
+	</div>
+	<div>
+		<div class="methodinfo info alert alert-warning">打开url,eg:'url','http://m.buy.mi.com/tw/accessories/0-0-0</div>
+		<div class="info-default info alert alert-warning hide"></div>
+	</div>
+</div>
+</div>
+</br>
+
+
+
+<div class="row ">
+	<p>例子如下：</p>
+    <ul class="list-group alltest form-inline">
+        <li class="list-group-item ">
+			<input type="text" class="form-control" value="url" readonly>
+			->
+			<input type="text" class="form-control" readonly  value="https://buy.mi.com/in/book"></input>
+		</li>
+        <li class="list-group-item  ">
+			<input type="text"  class="form-control" readonly value="text">
+			->
+			<input type="text"  class="form-control" readonly  value="#enter_user input.first-enter-item" />
+			->
+			<input type="text"  class="form-control" readonly  value="267255090"></input>
+		</li>
+		
+		
+		<li class="list-group-item ">
+			<input type="text"  class="form-control" readonly value="text">
+			->
+			<input type="text"  class="form-control" readonly  value="#miniLogin_pwd" />
+			->
+			<input type="password"  class="form-control" readonly value="gg111111" />
+		</li>
+		
+		<li class="list-group-item ">
+			<input type="text"  class="form-control" readonly value="assertText">
+			->
+			<input type="text"  class="form-control" readonly  value="#tmpl-dom h2" />
+			->
+			<input type="text"  class="form-control" readonly value="Congratulations">
+		</li>
+       
+    </ul>
+<div>
+
+
+</div>
+
+<script>
+	var methodInfoText = {
+		'click' : {
+		　text : "单击元素，eg:'click','.J_accnavSelect:nth-child(3)',''",
+		},
+		'url' : {
+			text: "打开url,eg:'url','http://m.buy.mi.com/tw/accessories/0-0-0','''",
+		},
+		'getonlytext':{
+			text:"获取文本内容,eg,'getonlytext','#J_contentList figure:nth-child(2) a p','text2'",
+		},
+		'check_exists':{
+			text:"检查元素是否存在,并将判断保存,eg:'check_exists','.xm-fixed-buy','has_buy_item'",
+		},
+		'get_currenturl':{
+			text: "获得当前的url,eg:'get_currenturl','currenturl',''",
+		},
+		'getattr_href':{
+			text: "获取属性,href,eg:'getattr_href','#J_contentList figure:nth-child(1) a','current_href'",
+		},
+		'text':{
+			text: "输入文本,eg:'text','#enter_user input.first-enter-item','267255090'",
+		},
+		'assertText':{
+			text:"断言元素文本,eg:",
+		},
+		'gettext':{
+			text:"获取元素文本",
+		},
+		'goto_section':{
+			text:"跳转到section：",
+		},
+		'assert_numeq':{
+			text:'比较两个值，只取其中的数字进行比较',
+		}
+	}
+	$('.method').focus();
+	$('.method').on('change', function(){
+		var method = $('.method').val();
+		if (methodInfoText[method]){
+			$('.methodinfo').removeClass('hide').html(methodInfoText[method].text);
+		}else{
+			$('.methodinfo').removeClass('hide').html('');
+		}
+
+	})
+	
+	
+	var testcases = [];
+	
+	function runtestcase(testcases) {
+		$('.info-default').removeClass('hide').html('测试用例执行中,请等待结果...');
+		var _this = $(this);
+		_this.attr('disabled',true);
+		$.ajax({
+				type: 'POST',
+				url: '/runtestcase',
+				data : {"testcases": testcases},
+				success: function(data){
+					$('.info-default').removeClass('hide').html(data);
+					_this.attr('disabled',false);	
+				}
+			});
+	}
+	
+	$('.addnewtest').on('click', function() {
+		var method = $('.method').val();
+		var key = $('.key').val();
+		var value = $('.value').val();
+		if(method == ''  ||  key == '' ) {
+			$('.info-default').removeClass('hide').html('方法名或值不能为空');	
+			return;
+		}
+		var testcase = method + "," + key + "," + value
+		testcases.push(testcase)
+		
+		var str = '<li class="list-group-item"><span>' + method +   '</span><span>--></span><span>' + key + '</span><span>-->' + value  + '</span></li>'; 
+		$('.alltest').append(str);	
+	   });
+	   
+	   $('.runtest').on('click', function() {
+			runtestcase(testcases);
+	   });
+	    $('.runtestex').on('click', function() {
+			testcases = ["url,https://buy.mi.com/in/book,", 
+			"text,#enter_user input.first-enter-item,267255090", 
+			 "text,#miniLogin_pwd,gg111111", 
+			 "click,#message_LOGIN_IMMEDIATELY,", 
+			 "assertText,#tmpl-dom h2,Congratulations"];
+ 
+			runtestcase(testcases);
+	   });
+
+</script>
+{% end %}
+
+{% end %}

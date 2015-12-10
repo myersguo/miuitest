@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+{% include "./layout/head.html" %}
+{% try %}
+{% for item in headers['css'] %}
+	<link href="{{ item }}" rel="stylesheet">
+{% end %}
+{% except %}
+{% end %}
+
+{% try %}
+{% for item in headers['js'] %}
+	<script src="{{item }}" type="text/javascript" charset="utf-8"></script> 
+{% end %}
+{% except %}
+{% end %}
+</head>
+
+<body class="container">
+<!--<header>-->
+{% include ./layout/header.html %}
+<!--</header>-->
+
+{% block body %}
+<!-- body -->
+{% end %}
+<footer>
+{% include ./layout/footer.html %}
+</footer>
+</body>
+</html>

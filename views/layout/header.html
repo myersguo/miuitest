@@ -1,0 +1,34 @@
+<!-- views/layout/header.html -->
+<header class="navbar navbar-static-top bs-docs-nav" id="top" role="banner">
+
+ <div class="navbar-header">
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>      
+</div>
+
+ <nav class="collapse navbar-collapse bs-navbar-collapse">
+ <!-- <nav class="navbar navbar-default" role="navigation"> -->
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">Test
+            </a>
+        </div>
+		<ul class="nav navbar-nav">
+             <li {% if title == "timestamp" %} class="active" {% end %}>
+            <a href="/timetool">时间戳服务</a>
+            </li>
+            
+            </li> 
+            <li {% if title== 'The Next' %} class="active" {% end %}>
+            <a href="/next">UI测试</a>
+            </li>
+            
+      </ul>	
+    </div>
+</nav>
+
+</header>

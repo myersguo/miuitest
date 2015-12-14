@@ -870,7 +870,8 @@ def RunTestCase(testcases, isfile=0, client='10.236.122.65'):
         cur_testcase_sections = testcase_suit[suit]
         testcase_sections = cur_testcase_sections
         for section in testcase_sections:  #TODO 以后这里更改成不限制顺序的
-            if section not in (global_cur_section):
+            #if section not in (global_cur_section):
+            if section != global_cur_section:
                 continue
             cur_testcases = testcase_sections[section]
             isloop = False

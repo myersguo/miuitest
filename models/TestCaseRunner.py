@@ -26,23 +26,34 @@ import sys
 import time
 from datetime import datetime
 from os import getcwd,sep,path
+import logging
+
+
 reload(sys)
 sys.setdefaultencoding('utf8')
 
+
 global_cur_section = 'default'
 screen_folder = getcwd() + sep + "public" + sep + "screen" + sep
-ALWAYS_SAVE_FOLDER = True
-MAIL_OPEN = False
+ALWAYS_SAVE_FOLDER = False #截屏开关
+MAIL_OPEN = False #邮件开关
 
 PATH = lambda p: path.abspath(
     path.join(path.dirname(__file__), p)
 )
 
+#set log config,output to file
+LOG_SWITCH = False #日志开关
+if LOG_SWITCH == True:
+    logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(pathname)s[line:%(lineno)d] %(levelname)s %(message)s',
+                    datefmt='%a, %d %b %Y %H:%M:%S',
+                    filename='uitest.log',
+                    filemode='w')
 
 
 class MyException(Exception):
     pass
-
 
 class UITestDriver():
 
@@ -134,13 +145,14 @@ class UITestDriver():
             time.sleep(5)#等待打开应用
             #前提条件是，必须在前两个，
             #TODO，后续用更好的方式解决
-            self.all_contexts = self._driver.contexts[0:2]
-            for i in range(0,2):
-                print self.all_contexts[i]
-                if self.all_contexts[i].startswith('NATIVE_'):
-                    self.native_context = self.all_contexts[i]
-                elif self.all_contexts[i].startswith('WEBVIEW_'):
-                    self.webview_context = self.all_contexts[i]
+            self.all_contexts = self._driver.contexts
+            contexts_len = 0
+            if self.all_contexts is not None:
+                for i in range(0,contexts_len):
+                    if self.all_contexts[i].startswith('NATIVE_'):
+                        self.native_context = self.all_contexts[i]
+                    elif self.all_contexts[i].startswith('WEBVIEW_'):
+                        self.webview_context = self.all_contexts[i]
 
         else:
             self._driver = webdriver.Remote(
@@ -435,7 +447,11 @@ class UITestDriver():
         else:
             pass
     def back(self, *args, **kwds):
-        self.driver.back()
+        if self.isapp == True:
+            self.driver.press_keycode(4)#,appium 没有back,用key event 事件代替KEYCODE_BACK
+            #self.driver.execute_script("mobile: keyevent",{ "keycode": 4 })
+        else:
+            self.driver.back()
     def forward(self, *args, **kwds):
         self.driver.forward()
 
@@ -659,6 +675,7 @@ class UITestDriver():
         if self.native_context is not None:
             self.driver.switch_to.context(self.native_context)
     
+   
     def swipe(self, *args, **kwds):
         target = args[1].split(',')
         loop = 1
@@ -671,9 +688,9 @@ class UITestDriver():
         for i in range(1,loop):
             self.driver.swipe(target[0],target[1],target[2],target[3],500)
 
-    def swipe_method(method, isfast=False):
-        x = driver.get_window_size()['width']
-        y = driver.get_window_size()['height']
+    def swipe_method(self, method, isfast=False):
+        x = self.driver.get_window_size()['width']
+        y = self.driver.get_window_size()['height']
         if method == 'left':
             self.driver.swipe(x*2/3,y/2,x/3,y/2,500)
         elif method == 'right':
@@ -686,13 +703,30 @@ class UITestDriver():
             time.sleep(2)
 
     def swipe_to_left(self, *args, **kwds):
-        self.swipe_method('left')
+        loop = 1
+        if args[1] is not None and len(args[1]) != 0:
+            loop = int(args[1])
+        for i in range(0, loop):
+            self.swipe_method('left')
     def swipe_to_right(self, *args, **kwds):
-        self.swipe_method('right')
+        loop = 1
+        if args[1] is not None and len(args[1]) != 0:
+            loop = int(args[1])
+        for i in range(0, loop):
+            self.swipe_method('right')
     def swipe_to_down(self, *args, **kwds):
-        self.swipe_method('down')
+        loop = 1
+        if args[1] is not None and len(args[1]) != 0:
+            loop = int(args[1])
+        for i in range(0, loop):
+            self.swipe_method('up')
     def swipe_to_up(self, *args, **kwds):
-        self.swipe_method('up')
+        loop = 1
+        if args[1] is not None and len(args[1]) != 0:
+            loop = int(args[1])
+        for i in range(0, loop):
+            self.swipe_method('down')
+ 
 
     def process(self, testcase):
         if self.driver.session_id is None and self.isapp == False:
@@ -735,6 +769,8 @@ class UITestDriver():
         'swipe':self.swipe,
         'swipe_to_left':self.swipe_to_left,
         'swipe_to_right':self.swipe_to_right,
+        'swipe_to_down':self.swipe_to_down,
+        'swipe_to_up':self.swipe_to_up,
         'switch_to_webview':self.switch_to_webview,
         'switch_to_native':self.switch_to_native,
         'baseurl':self.setbaseurl,

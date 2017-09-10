@@ -13,6 +13,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 
 from appium import webdriver as android_driver
+from settings import REMOTE_URL
 
 try:
     from collections import OrderedDict
@@ -81,10 +82,14 @@ class UITestDriver():
     @staticmethod
     def instance():
         if not hasattr(UITestDriver, '_instance'):
+            host =  REMOTE_URL 
+            print '--'
+            print host
+            print '--'
             if self.isapp == False:
-                UITestDriver._instance = UITestDriver()
+                UITestDriver._instance = UITestDriver(host=host)
             else:
-                UITestDriver._instance = UITestDriver(isapp=True,appname = self.testapp)
+                UITestDriver._instance = UITestDriver(host=host,isapp=True,appname = self.testapp)
         return UITestDriver._instance
 
     def __init__(self, host='127.0.0.1',isapp=False,appname=''):

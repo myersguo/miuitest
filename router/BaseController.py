@@ -1,7 +1,6 @@
 import tornado.web
-from models import TestCaseRunner
+from models import TestCaseRunner,TestCases
 import json
-from models import TestCases,TimeStamp
 
 
 def check_user(func):
@@ -30,50 +29,6 @@ class ShowRealHandler(tornado.web.RequestHandler):
 class ProductHandler(tornado.web.RequestHandler):
     def get(self):
         self.render('product.html', title='product')
-
-class TimestampHandler(tornado.web.RequestHandler):
-    def get(self, *path):
-        request = self.request
-        #get action path
-        path = [p.strip() for p in request.path.split('/') if p.strip()]
-        action = getattr(self, "get_%s" % path[0])
-        try:
-            pathlen = len(path)
-            if pathlen == 1:
-                action()
-            elif pathlen == 2:
-                action(path[-1])
-            else:
-               self.write('404')     
-        except Exception,e :
-            print e
-            self.write('404')
-        
-    def get_timetool(self):
-        try:
-            timetools = TimeStamp.TimeStamp()
-            curtime = int(timetools.getservertime())
-            self.render('timetools.html', title='timestamp',localtime=curtime)
-        except:
-            self.write('404')
-    
-    def get_gettimestamp(self):
-        try:
-            timetools = TimeStamp.TimeStamp()
-            curtime = timetools.getservertime()
-            self.write('var servertime='+curtime)
-        except Exception,e:
-            self.write('db connection failed')
-    
-    def get_settimestamp(self, value):
-        try:
-            timetools = TimeStamp.TimeStamp()
-            curtime = timetools.changeservertime(value)
-            self.redirect('/gettimestamp')
-        except Exception,e:
-            self.write('db connection failed')         
-        
-        
         
 class SmokeHandler(tornado.web.RequestHandler):
     def get(self):

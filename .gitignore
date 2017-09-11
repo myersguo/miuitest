@@ -4,5 +4,4 @@
 *.swp
 public/screen
 /db
-/testcases
 .DS_Store
